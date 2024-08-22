@@ -110,7 +110,7 @@ def news_sentiment():#Webscrape from finviz to determine the sentiment of news f
 
     current_date = datetime.now().strftime('%b-%d-%y')
     sentiment_df["Date"] = sentiment_df["Date"].replace("Today", current_date)
-    sentiment_df["Date"] = pd.to_datetime(sentiment_df['Date']).dt.date
+    sentiment_df["Date"] = pd.to_datetime(sentiment_df['Date'], format="%b-%d-%y").dt.date
     mean_df = sentiment_df.groupby(["Date"]).mean(numeric_only=True)
     today_sentiment = mean_df.iloc[-1]
     
@@ -158,7 +158,6 @@ def main():
         volatility = True
     else:
         print(f"the stock is not volatile enough, it has a Beta of {round(beta,2)} and Standard deviation of {round(std,2)}")
-        return None
             
     #check for relative volume
     rel_vol = False
@@ -166,10 +165,10 @@ def main():
         rel_vol = True
     else:
         print(f"the relative trading volume for {symbol} is too low, it has a trading relative trading volume of {round(volume_score(),2)}")
-        return None
     
       
     #check if the closing price is near support/resistance
+    suitable = False
     sr_levels = supoort_resistance()
     near_levels = ({"Support":[], "Resistance":[]})
     closing_price = df["Adj Close"].iloc[-1]
@@ -181,28 +180,28 @@ def main():
             else:
                 near_levels["Resistance"].append(sr)
     if len(near_levels["Resistance"]) > 0:
-        print(f"The nearest resistance is {max(near_levels["Resistance"])}\n")
+        print(f"The nearest resistance is {max(near_levels["Resistance"])}")
+        suitable = True
     elif len(near_levels["Support"]) >0:
-        print(f"The nearest support is {min(near_levels["Support"])}\n")
+        print(f"The nearest support is {min(near_levels["Support"])}")
+        suitable = True
     else:
-        print("The stock is volatile & has high relative trading volume, but is not near the support or resistance")
-        return None
+        print(f"The stock is not near the support or resistance, Support: {min(near_levels["Support"])} & Resistance: {max(near_levels["Resistance"])}")
     
     updown = ""
     if trend() == "Bullish" and cal_macd()=="Bullish":
             updown = "Bullish"
-            
-    
     elif trend() == "Bearish" and cal_macd()=="Bearish":
         updown = "Bearish"
-    
     else:
         updown = "No clear trend"
 
-    print("This stock is perfect for option trading!")
     print(f"News sentiment: {news_sentiment()}") 
     print(f"Trend: {updown}")
     print(f"RSI: {relative_strength()}")
+    
+    if rel_vol == False or volatility == False or suitable == False:
+        print("This stock is not suitable for option trading")
 
 if __name__ == "__main__":
     main()
