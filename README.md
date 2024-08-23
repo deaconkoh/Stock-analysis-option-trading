@@ -63,4 +63,4 @@ RSI: Neutral
 
 - The script uses a 1-year historical data period for analysis.
 - Ensure that your internet connection is active for fetching data and scraping news.
-- Adjustments may be necessary depending on data availability and API changes.
+- This is one of my very first few projects I've worked on, so I'm sure that there are a lot of flaws. Appreciate any and all feedbacks :)
